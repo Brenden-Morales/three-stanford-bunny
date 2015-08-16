@@ -2,7 +2,7 @@
  * Created by brenden on 8/15/2015.
  */
 
-var renderer,camera,controls,scene,stats;
+var renderer,camera,controls,scene,stats,points;
 
 var initialize = function(){
     renderer = new THREE.WebGLRenderer( { antialias: false } );
@@ -12,9 +12,8 @@ var initialize = function(){
 
     //camera
     camera = new THREE.PerspectiveCamera(60,window.innerWidth / window.innerHeight,1,200);
-    camera.position.z = 5;
+    camera.position.y = 30;
 
-    camera.position.y = 5;
     //controls
     controls = new THREE.OrbitControls( camera );
     controls.damping = 0.2;
@@ -31,12 +30,14 @@ var initialize = function(){
     document.body.appendChild( stats.domElement );
     window.addEventListener( 'resize', onWindowResize, false );
 
-    //add initial cube
-    var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    var material = new THREE.MeshBasicMaterial( {color: 0x00ff00,wireframe:true} );
-    var cube = new THREE.Mesh( geometry, material );
-    scene.add( cube );
-
+    points = TriangulationPoints({
+        numPoints:20,
+        pointScalar:20,
+        pointSize:0.5
+    });
+    points.points.forEach(function(point){
+        scene.add(point);
+    })
     //start render loop
     animate();
 };
