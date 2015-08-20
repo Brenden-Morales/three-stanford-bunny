@@ -17,8 +17,11 @@ var TriangulationPoints = function(options) {
         var cube = new THREE.Mesh( geometry, material );
         cube.position.z = (Math.random() * pointScalar) - (pointScalar / 2);
         cube.position.x = (Math.random() * pointScalar) - (pointScalar / 2);
+
         self.points.push(cube);
     }
 
     return self;
+
+    asdfasdf
 };
