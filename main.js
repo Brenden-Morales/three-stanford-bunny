@@ -11,7 +11,7 @@ var initialize = function(){
     document.body.appendChild(renderer.domElement);
 
     //camera
-    camera = new THREE.PerspectiveCamera(60,window.innerWidth / window.innerHeight,1,200);
+    camera = new THREE.PerspectiveCamera(60,window.innerWidth / window.innerHeight,0.1,100);
     camera.position.y = 30;
 
     //controls
@@ -40,6 +40,9 @@ var initialize = function(){
         var vertexNormals = [];
         var faces = [];
 
+        //VERRTEX / NORMAL MAP TO REMOVE VERTICES WITHOUT NORMALS / AREN'T INCLUDED IN FACES?
+        var vertexMap = {};
+
         var scale = 50;
 
         for(var i = 0; i < lines.length; i ++){
@@ -53,18 +56,28 @@ var initialize = function(){
             }
             else if (lines[i].indexOf("f ") === 0){
                 var coords = lines[i].split(" ");
-                for(var j = 0; j < coords.length; j ++){
+                for(var j = 1; j < coords.length; j ++){
                     var vertNorm = coords[j].split("//");
-                    vertexNormals[parseInt(vertNorm[0])] += normals[parseInt(vertNorm[1])];
+                    var index = parseInt(vertNorm[0]) - 1;
+                    vertexMap[index.toString()] = {
+                        v : vertices[index],
+                        n : normals[parseInt(vertNorm[1]) - 1]
+                    }
                 }
             }
         }
 
-        console.log(vertices.length);
-        console.log(vertexNormals.length);
+        var tempVerts = [];
+        var tempNormals = [];
+        for(var vert in vertexMap){
+            if(vertexMap.hasOwnProperty(vert)){
+                tempVerts.push(vertexMap[vert].v);
+                tempNormals.push(vertexMap[vert].n);
+            }
+        }
         var p = new debugParticles({
-            vertices : vertices,
-            normals : vertexNormals
+            vertices : tempVerts,
+            normals : tempNormals
         })
     };
     req.send();
