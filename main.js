@@ -30,14 +30,45 @@ var initialize = function(){
     document.body.appendChild( stats.domElement );
     window.addEventListener( 'resize', onWindowResize, false );
 
-    points = TriangulationPoints({
-        numPoints:20,
-        pointScalar:20,
-        pointSize:0.5
-    });
-    points.points.forEach(function(point){
-        scene.add(point);
-    })
+    //get the bunny
+    var req = new XMLHttpRequest();
+    req.open("GET","bunnyobj.txt",true);
+    req.onload = function(){
+        var lines = this.responseText.split("\n");
+        var vertices = [];
+        var normals = [];
+        var vertexNormals = [];
+        var faces = [];
+
+        var scale = 50;
+
+        for(var i = 0; i < lines.length; i ++){
+            if(lines[i].indexOf("vn ") === 0 ){
+                var coords = lines[i].split(" ");
+                normals.push(new THREE.Vector3(parseFloat(coords[1]),parseFloat(coords[2]),parseFloat(coords[3])));
+            }
+            else if (lines[i].indexOf("v ") === 0){
+                var coords = lines[i].split(" ");
+                vertices.push(new THREE.Vector3(parseFloat(coords[1]) * scale,parseFloat(coords[2]) * scale,parseFloat(coords[3]) * scale));
+            }
+            else if (lines[i].indexOf("f ") === 0){
+                var coords = lines[i].split(" ");
+                for(var j = 0; j < coords.length; j ++){
+                    var vertNorm = coords[j].split("//");
+                    vertexNormals[parseInt(vertNorm[0])] += normals[parseInt(vertNorm[1])];
+                }
+            }
+        }
+
+        console.log(vertices.length);
+        console.log(vertexNormals.length);
+        var p = new debugParticles({
+            vertices : vertices,
+            normals : vertexNormals
+        })
+    };
+    req.send();
+
     //start render loop
     animate();
 };
